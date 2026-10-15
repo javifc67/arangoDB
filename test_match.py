@@ -25,6 +25,10 @@ st, res = request("/_api/version")
 print(f"Versión: {res.get('version')} ({res.get('license')})")
 
 print("\n=== 2. Creando colecciones e insertando datos ===")
+# Limpiar colecciones si ya existen de ejecuciones previas (idempotencia)
+request("/_api/collection/knows", "DELETE")
+request("/_api/collection/users", "DELETE")
+
 # Crear colección de vértices 'users'
 request("/_api/collection", "POST", {"name": "users", "type": 2})
 # Crear colección de aristas 'knows'

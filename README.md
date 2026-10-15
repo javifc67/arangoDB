@@ -52,11 +52,18 @@ Este directorio contiene la configuración de Docker Compose para desplegar una 
 
 ## 🧪 Cómo probar la cláusula MATCH
 
-Hemos dejado un script en Python ([test_match.py](file:///home/javier/Escritorio/arangoDB/test_match.py)) listo para probar:
+Hemos dejado un script en Python ([test_match.py](file:///home/javier/Escritorio/arangoDB/test_match.py)) sin dependencias externas (solo usa la librería estándar de Python):
 
-```bash
-python3 test_match.py
-```
+* **En Linux / macOS:**
+  ```bash
+  python3 test_match.py
+  ```
+* **En Windows (PowerShell / CMD):**
+  ```powershell
+  py test_match.py
+  # o bien:
+  python test_match.py
+  ```
 
 El script realiza:
 1. Conexión y verificación de versión (ArangoDB 4.0).
