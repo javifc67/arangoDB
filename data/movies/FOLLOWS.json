@@ -1,0 +1,23 @@
+[
+  {
+    "_key": "241",
+    "_id": "FOLLOWS/241",
+    "_from": "Person/153",
+    "_to": "Person/152",
+    "_rev": "_lWNuvxa---"
+  },
+  {
+    "_key": "242",
+    "_id": "FOLLOWS/242",
+    "_from": "Person/151",
+    "_to": "Person/152",
+    "_rev": "_lWNuvxa--A"
+  },
+  {
+    "_key": "243",
+    "_id": "FOLLOWS/243",
+    "_from": "Person/150",
+    "_to": "Person/151",
+    "_rev": "_lWNuvxa--B"
+  }
+]

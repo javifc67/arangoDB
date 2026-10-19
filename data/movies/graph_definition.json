@@ -1,0 +1,69 @@
+{
+  "_key": "Movies",
+  "numberOfShards": 1,
+  "replicationFactor": 1,
+  "minReplicationFactor": 1,
+  "writeConcern": 1,
+  "isSmart": false,
+  "isSatellite": false,
+  "edgeDefinitions": [
+    {
+      "collection": "ACTED_IN",
+      "from": [
+        "Person"
+      ],
+      "to": [
+        "Movie"
+      ]
+    },
+    {
+      "collection": "DIRECTED",
+      "from": [
+        "Person"
+      ],
+      "to": [
+        "Movie"
+      ]
+    },
+    {
+      "collection": "FOLLOWS",
+      "from": [
+        "Person"
+      ],
+      "to": [
+        "Person"
+      ]
+    },
+    {
+      "collection": "PRODUCED",
+      "from": [
+        "Person"
+      ],
+      "to": [
+        "Movie"
+      ]
+    },
+    {
+      "collection": "REVIEWED",
+      "from": [
+        "Person"
+      ],
+      "to": [
+        "Movie"
+      ]
+    },
+    {
+      "collection": "WROTE",
+      "from": [
+        "Person"
+      ],
+      "to": [
+        "Movie"
+      ]
+    }
+  ],
+  "orphanCollections": [],
+  "_rev": "_lWNx5ke---",
+  "_id": "_graphs/Movies",
+  "name": "Movies"
+}
