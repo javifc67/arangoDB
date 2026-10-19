@@ -39,9 +39,11 @@ Este directorio contiene la configuración de Docker Compose para desplegar una 
 ## 🚀 Cómo arrancar el servicio
 
 1. Asegúrate de tener configurado el archivo `.env` (puerto y contraseña `root`).
-2. Levanta el contenedor con Docker Compose:
+2. Levanta el contenedor con Docker Compose o Docker CLI:
    ```bash
    docker compose up -d
+   # O si no tienes instalado el plugin de compose:
+   docker run -d --name arangodb -p 8529:8529 -e ARANGO_ROOT_PASSWORD=rootpassword arangodb/enterprise-preview:4.0-nightly
    ```
 3. Verifica el estado:
    ```bash
@@ -77,9 +79,42 @@ El script realiza:
 
 ---
 
+## 🎬 Dataset Movies (Grafo de Películas)
+
+Ya se ha exportado y empaquetado el grafo completo de **Movies** (en `data/movies/`) obtenido de la base de datos remota.
+
+### 1. Importar a tu ArangoDB local
+
+Una vez que tengas el contenedor en marcha (`docker compose up -d`), simplemente ejecuta:
+
+```bash
+python3 import_movies.py
+```
+
+Esto creará automáticamente:
+* **Colecciones de Vértices:** `Movie` (38) y `Person` (133).
+* **Colecciones de Aristas:** `ACTED_IN` (172), `DIRECTED` (44), `PRODUCED` (15), `WROTE` (10), `REVIEWED` (9) y `FOLLOWS` (3).
+* **Named Graph:** `Movies` con todas las definiciones de aristas registradas.
+
+### 2. Probar consultas sobre Movies
+
+```bash
+python3 test_movies.py
+```
+
+### 3. Re-exportar desde el servidor remoto (opcional)
+
+Si deseas sincronizar nuevamente los datos desde el servidor remoto definido en `.env`:
+```bash
+python3 export_movies.py
+```
+
+---
+
 ## 🛑 Detener el contenedor
 
 ```bash
 docker compose down
 ```
 *(Para eliminar también los volúmenes de datos, añade la opción `-v`: `docker compose down -v`).*
+

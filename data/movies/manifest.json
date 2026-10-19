@@ -1,0 +1,121 @@
+{
+  "graph": {
+    "_key": "Movies",
+    "numberOfShards": 1,
+    "replicationFactor": 1,
+    "minReplicationFactor": 1,
+    "writeConcern": 1,
+    "isSmart": false,
+    "isSatellite": false,
+    "edgeDefinitions": [
+      {
+        "collection": "ACTED_IN",
+        "from": [
+          "Person"
+        ],
+        "to": [
+          "Movie"
+        ]
+      },
+      {
+        "collection": "DIRECTED",
+        "from": [
+          "Person"
+        ],
+        "to": [
+          "Movie"
+        ]
+      },
+      {
+        "collection": "FOLLOWS",
+        "from": [
+          "Person"
+        ],
+        "to": [
+          "Person"
+        ]
+      },
+      {
+        "collection": "PRODUCED",
+        "from": [
+          "Person"
+        ],
+        "to": [
+          "Movie"
+        ]
+      },
+      {
+        "collection": "REVIEWED",
+        "from": [
+          "Person"
+        ],
+        "to": [
+          "Movie"
+        ]
+      },
+      {
+        "collection": "WROTE",
+        "from": [
+          "Person"
+        ],
+        "to": [
+          "Movie"
+        ]
+      }
+    ],
+    "orphanCollections": [],
+    "_rev": "_lWNx5ke---",
+    "_id": "_graphs/Movies",
+    "name": "Movies"
+  },
+  "collections": [
+    {
+      "name": "Person",
+      "type": 2,
+      "count": 133,
+      "file": "Person.json"
+    },
+    {
+      "name": "Movie",
+      "type": 2,
+      "count": 38,
+      "file": "Movie.json"
+    },
+    {
+      "name": "ACTED_IN",
+      "type": 3,
+      "count": 172,
+      "file": "ACTED_IN.json"
+    },
+    {
+      "name": "DIRECTED",
+      "type": 3,
+      "count": 44,
+      "file": "DIRECTED.json"
+    },
+    {
+      "name": "FOLLOWS",
+      "type": 3,
+      "count": 3,
+      "file": "FOLLOWS.json"
+    },
+    {
+      "name": "PRODUCED",
+      "type": 3,
+      "count": 15,
+      "file": "PRODUCED.json"
+    },
+    {
+      "name": "REVIEWED",
+      "type": 3,
+      "count": 9,
+      "file": "REVIEWED.json"
+    },
+    {
+      "name": "WROTE",
+      "type": 3,
+      "count": 10,
+      "file": "WROTE.json"
+    }
+  ]
+}
