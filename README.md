@@ -31,6 +31,15 @@ Este directorio contiene la configuración de Docker Compose para desplegar una 
      }
      ```
 
+3. **Consideraciones sintácticas de `MATCH` frente a Cypher clásico:**
+   * **No reasignar la misma variable:** A diferencia de openCypher puro (donde `MATCH (p)-[:DIRECTED]->(m)<-[:ACTED_IN]-(p)` vincula `p` automáticamente), en AQL de ArangoDB 4.0 repetir la variable lanza `variable 'p' is assigned multiple times (error 1511)`. La forma soportada es usar variables distintas y filtrar:
+     ```aql
+     MATCH (director :Person) -[ :DIRECTED ]-> (m :Movie) <-[ :ACTED_IN ]- (actor :Person)
+     FILTER director == actor
+     RETURN { persona: director.name, pelicula: m.title }
+     ```
+   * **`DISTINCT`:** En AQL no se utiliza `RETURN DISTINCT` a nivel superior (genera error `1501`). Se usa `RETURN` estándar, `RETURN UNIQUE(...)` o `COLLECT`.
+
 > **Nota importante sobre la interfaz Web:**  
 > Las imágenes nightly/preview de ArangoDB 4.0 son imágenes del motor *headless* (enfocadas en el core de la base de datos y la API REST). No incluyen la interfaz gráfica antigua de Aardvark en `/`, por lo que las pruebas se realizan mediante la API HTTP (Postman, cURL, Python, Node.js, etc.).
 
