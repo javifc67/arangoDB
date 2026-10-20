@@ -45,14 +45,38 @@ FOR m IN Movie
     RETURN { actor: p.name, roles: e.roles }
 """)
 print(f"Estado: {st}")
-for row in res.get("result", []):
-    print(f"  - {row.get('actor')} interpretó a {row.get('roles')}")
+if st in (200, 201):
+    for row in res.get("result", []):
+        print(f"  - {row.get('actor')} interpretó a {row.get('roles')}")
+else:
+    print(f"  Error: {res.get('errorMessage')}")
 
 print("\n=== 2. Consulta con MATCH (ArangoDB 4.0): ¿Quién actuó y dirigió la misma película? ===")
+# En el soporte de MATCH de ArangoDB 4.0:
+# - No se puede repetir la misma variable de nodo en el patrón MATCH (ej: p ... p da error 'variable p is assigned multiple times').
+#   En su lugar se usan variables distintas y se compara con FILTER: FILTER director == actor.
+# - RETURN DISTINCT en el nivel superior no es sintaxis AQL válida.
 st, res = query("""
-MATCH (p :Person) -[ :DIRECTED ]-> (m :Movie) <-[ :ACTED_IN ]- (p :Person)
-RETURN DISTINCT { persona: p.name, pelicula: m.title }
+MATCH (director :Person) -[ :DIRECTED ]-> (m :Movie) <-[ :ACTED_IN ]- (actor :Person)
+FILTER director == actor
+RETURN { persona: director.name, pelicula: m.title }
 """, experimental_match=True)
 print(f"Estado: {st}")
-for row in res.get("result", []):
-    print(f"  - {row.get('persona')} actuó y dirigió en '{row.get('pelicula')}'")
+if st in (200, 201):
+    for row in res.get("result", []):
+        print(f"  - {row.get('persona')} actuó y dirigió en '{row.get('pelicula')}'")
+else:
+    print(f"  Error: {res.get('errorMessage')}")
+
+print("\n=== 3. Consulta con MATCH (ArangoDB 4.0): Co-actores de Keanu Reeves en The Matrix ===")
+st, res = query("""
+MATCH (keanu :Person) -[ :ACTED_IN ]-> (m :Movie) <-[ :ACTED_IN ]- (coactor :Person)
+FILTER keanu.name == 'Keanu Reeves' AND m.title == 'The Matrix' AND coactor != keanu
+RETURN { coactor: coactor.name, pelicula: m.title }
+""", experimental_match=True)
+print(f"Estado: {st}")
+if st in (200, 201):
+    for row in res.get("result", []):
+        print(f"  - {row.get('coactor')} en '{row.get('pelicula')}'")
+else:
+    print(f"  Error: {res.get('errorMessage')}")
