@@ -1,19 +1,9 @@
-import os
 import json
 import base64
 import urllib.request
 import urllib.error
 
-def load_env(env_path=".env"):
-    env = {}
-    if os.path.exists(env_path):
-        with open(env_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    env[k.strip()] = v.strip()
-    return env
+from env_utils import load_env
 
 env = load_env()
 PORT = env.get("ARANGO_PORT", "8529")

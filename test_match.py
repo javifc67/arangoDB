@@ -3,9 +3,13 @@ import urllib.request
 import urllib.error
 import base64
 
-ARANGO_URL = "http://localhost:8529"
+from env_utils import load_env
+
+env = load_env()
+PORT = env.get("ARANGO_PORT", "8529")
+ARANGO_URL = f"http://localhost:{PORT}"
 USER = "root"
-PASSWORD = "rootpassword"
+PASSWORD = env.get("ARANGO_ROOT_PASSWORD", "rootpassword")
 
 auth_header = "Basic " + base64.b64encode(f"{USER}:{PASSWORD}".encode()).decode()
 

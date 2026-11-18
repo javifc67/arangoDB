@@ -4,24 +4,25 @@ import base64
 import urllib.request
 import urllib.error
 
-def load_env(env_path=".env"):
-    env = {}
-    if os.path.exists(env_path):
-        with open(env_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    env[k.strip()] = v.strip()
-    return env
+from env_utils import load_env, require_env
 
-env = load_env()
-HOST_URL = env.get("host_url", "").rstrip("/")
-USERNAME = env.get("host_username", "")
-PASSWORD = env.get("host_password", "")
-DB_NAME = env.get("db_name", "")
+HOST_URL = ""
+USERNAME = ""
+PASSWORD = ""
+DB_NAME = ""
+AUTH_HEADER = ""
 
-AUTH_HEADER = "Basic " + base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
+
+def init_config():
+    """Carga y valida las credenciales remotas exclusivamente desde .env / entorno."""
+    global HOST_URL, USERNAME, PASSWORD, DB_NAME, AUTH_HEADER
+    env = load_env()
+    cfg = require_env(env, ["host_url", "host_username", "host_password", "db_name"])
+    HOST_URL = cfg["host_url"].rstrip("/")
+    USERNAME = cfg["host_username"]
+    PASSWORD = cfg["host_password"]
+    DB_NAME = cfg["db_name"]
+    AUTH_HEADER = "Basic " + base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 def api_request(path, method="GET", body=None):
     url = f"{HOST_URL}/_db/{DB_NAME}{path}"
@@ -56,6 +57,7 @@ def fetch_all_documents(col_name):
     return docs
 
 def export_movies():
+    init_config()
     print(f"--> Conectando a {HOST_URL} (Base de datos: {DB_NAME})...")
     output_dir = os.path.join(os.path.dirname(__file__), "data", "movies")
     os.makedirs(output_dir, exist_ok=True)

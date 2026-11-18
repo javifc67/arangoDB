@@ -5,22 +5,14 @@ import time
 import urllib.request
 import urllib.error
 
-def load_env(env_path=".env"):
-    env = {}
-    if os.path.exists(env_path):
-        with open(env_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    env[k.strip()] = v.strip()
-    return env
+from env_utils import load_env, require_env
 
 env = load_env()
-HOST_URL = env.get("host_url", "").rstrip("/")
-USERNAME = env.get("host_username", "")
-PASSWORD = env.get("host_password", "")
-DB_NAME  = env.get("db_name", "")
+HOST_URL = ""
+USERNAME = ""
+PASSWORD = ""
+DB_NAME = ""
+AUTH_HEADER = ""
 
 # Pausa entre colecciones para no saturar el servidor (segundos)
 DELAY_BETWEEN_COLS = float(env.get("export_delay", "0.5"))
@@ -33,10 +25,20 @@ CIRCUIT_BREAKER_THRESHOLD = int(env.get("export_circuit_threshold", "3"))
 # Pausa larga del circuit breaker (segundos)
 CIRCUIT_BREAKER_WAIT = float(env.get("export_circuit_wait", "30"))
 
-AUTH_HEADER = "Basic " + base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
-
 # Contador global de fallos consecutivos (circuit breaker)
 consecutive_failures = 0
+
+
+def init_config():
+    """Carga y valida las credenciales remotas exclusivamente desde .env / entorno."""
+    global env, HOST_URL, USERNAME, PASSWORD, DB_NAME, AUTH_HEADER
+    env = load_env()
+    cfg = require_env(env, ["host_url", "host_username", "host_password", "db_name"])
+    HOST_URL = cfg["host_url"].rstrip("/")
+    USERNAME = cfg["host_username"]
+    PASSWORD = cfg["host_password"]
+    DB_NAME = cfg["db_name"]
+    AUTH_HEADER = "Basic " + base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 def api_request(path, method="GET", body=None, db=None, label=""):
     """Petición HTTP a ArangoDB con reintentos automáticos y backoff exponencial."""
@@ -159,6 +161,7 @@ def fetch_and_write_documents(col_name, out_path):
 
 
 def export_all():
+    init_config()
     print(f"--> Conectando a {HOST_URL} (Base de datos: {DB_NAME})...")
     db_safe_name = DB_NAME.replace("/", "_")
     output_dir = os.path.join(os.path.dirname(__file__), "data", db_safe_name)
