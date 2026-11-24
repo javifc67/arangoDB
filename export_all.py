@@ -191,11 +191,51 @@ def export_all():
         json.dump(graphs, f, indent=2, ensure_ascii=False)
     print(f"✓ Definiciones de grafos guardadas en _graphs.json")
 
+    # 2b. Obtener todas las views (ArangoSearch / search-alias)
+    status, views_res = api_request("/_api/view", label="lista views")
+    views = []
+    if status == 200:
+        for v in views_res.get("result", []):
+            v_name = v.get("name")
+            if not v_name:
+                continue
+            p_st, props = api_request(f"/_api/view/{v_name}/properties", label=f"view {v_name}")
+            if p_st == 200:
+                views.append(props)
+            else:
+                print(f"Aviso: no se pudieron obtener propiedades de la view '{v_name}' ({props})")
+        print(f"--> Se encontraron {len(views)} views en '{DB_NAME}'")
+    else:
+        print(f"Aviso: no se pudieron obtener las views ({views_res})")
+
+    views_file = os.path.join(output_dir, "_views.json")
+    with open(views_file, "w", encoding="utf-8") as f:
+        json.dump(views, f, indent=2, ensure_ascii=False)
+    print(f"✓ Definiciones de views guardadas en _views.json")
+
+    # 2c. Obtener índices secundarios (excluyendo primary y edge)
+    indexes_by_col = {}
+    total_extra_idx = 0
+    for col in all_collections:
+        col_name = col["name"]
+        i_st, i_res = api_request(f"/_api/index?collection={col_name}", label=f"índices {col_name}")
+        if i_st == 200:
+            extra = [idx for idx in i_res.get("indexes", []) if idx.get("type") not in ("primary", "edge")]
+            if extra:
+                indexes_by_col[col_name] = extra
+                total_extra_idx += len(extra)
+    indexes_file = os.path.join(output_dir, "_indexes.json")
+    with open(indexes_file, "w", encoding="utf-8") as f:
+        json.dump(indexes_by_col, f, indent=2, ensure_ascii=False)
+    print(f"✓ {total_extra_idx} índices secundarios guardados en _indexes.json")
+
     # Cargar manifest existente para reanudar si el script se interrumpió antes
     manifest_path = os.path.join(output_dir, "manifest.json")
     if os.path.exists(manifest_path):
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
+        manifest["views_file"] = "_views.json"
+        manifest["indexes_file"] = "_indexes.json"
         already_done = {c["name"] for c in manifest.get("collections", [])}
         print(f"    → Reanudando: {len(already_done)} colecciones ya exportadas se omitirán.")
     else:
@@ -204,7 +244,9 @@ def export_all():
             "db_name": DB_NAME,
             "host_url": HOST_URL,
             "collections": [],
-            "graphs_file": "_graphs.json"
+            "graphs_file": "_graphs.json",
+            "views_file": "_views.json",
+            "indexes_file": "_indexes.json"
         }
 
     # 3. Exportar cada colección
